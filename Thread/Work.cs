@@ -8,23 +8,34 @@ namespace Thread_exo
     {
         private int instanceNumber;
         public int InstanceNumber { set => instanceNumber = value; }
-
+        public Mutex baton;
+        public Random alea = new Random((int)DateTime.Now.Ticks);
+        public StreamWriter fichier;
+        public ManualResetEvent drapeau;
         public void Run()
         {
-            Random alea = new Random();
-            int back = alea.Next(1, 16);
+            
+            int back = alea.Next(15);
             int fore;
             do
             {
-                fore = alea.Next(1, 16);
+                fore = alea.Next(15);
             } while (fore == back);
 
             for (int i = 0; i < 100; i++)
             {
-                Console.BackgroundColor = (ConsoleColor)back;
-                Console.ForegroundColor = (ConsoleColor)fore;
-                Console.WriteLine("Thread secondaire " + instanceNumber + " : " + i); 
+                baton.WaitOne();
+                fichier.WriteLine("Objet : " + instanceNumber + " : " + i);
+                
+                //Console.BackgroundColor = (ConsoleColor)back;
+                //Console.ForegroundColor = (ConsoleColor)fore;
+                //Console.WriteLine("Thread secondaire " + instanceNumber + " : " + i); 
+                baton.ReleaseMutex();
+                
             }
+            Thread.Sleep(50);
+            drapeau.Set();
+
         }
     }
 }
